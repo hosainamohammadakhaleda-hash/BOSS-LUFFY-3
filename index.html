@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFI | PRIVATE BOT SYSTEM</title>
+    <style>
+        /* CSS - Anixh Premium Dark & Orange Theme */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #08080a; color: white; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+
+        .bg-glow { position: fixed; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255, 69, 0, 0.1), transparent); filter: blur(100px); z-index: -1; top: 10%; left: 10%; }
+
+        /* Auth Card */
+        .auth-card { background: #121217; padding: 35px; border-radius: 25px; border: 1px solid #222; width: 360px; text-align: center; margin-top: 50px; height: fit-content; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .logo-box { width: 110px; height: 110px; margin: 0 auto 15px; border-radius: 50%; border: 3px solid #ff4500; padding: 5px; box-shadow: 0 0 15px rgba(255, 69, 0, 0.4); }
+        .logo-box img { width: 100%; height: 100%; border-radius: 50%; }
+        
+        .tabs { display: flex; background: #0a0a0c; border-radius: 12px; margin-bottom: 25px; padding: 5px; }
+        .tab { flex: 1; padding: 12px; cursor: pointer; border-radius: 10px; color: #888; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .tab.active { background: linear-gradient(45deg, #ff4500, #ff7b00); color: white; }
+
+        input { width: 100%; padding: 15px; margin-bottom: 15px; background: #0a0a0c; border: 1px solid #222; border-radius: 12px; color: #ff4500; text-align: center; outline: none; transition: 0.3s; }
+        input:focus { border-color: #ff4500; }
+        .btn-auth { width: 100%; padding: 16px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; background: linear-gradient(45deg, #ff4500, #ff7b00); text-transform: uppercase; }
+
+        /* Dashboard UI */
+        #dashboard { display: none; width: 100%; max-width: 450px; padding: 20px; flex-direction: column; animation: fadeIn 0.5s; }
+        .success-msg { background: #0a1a0a; border: 1px solid #00ff00; color: #00ff00; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; font-weight: bold; border-left: 5px solid #00ff00; }
+        
+        .user-profile { background: #121217; padding: 20px; border-radius: 20px; display: flex; align-items: center; border: 1px solid #222; margin-bottom: 15px; }
+        .avatar-circle { width: 55px; height: 55px; background: linear-gradient(45deg, #a020f0, #00ffff); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; margin-right: 15px; }
+
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .status-box { background: #121217; padding: 15px; border-radius: 18px; border: 1px solid #222; text-align: center; }
+        
+        .action-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; color: white; font-weight: bold; margin-bottom: 12px; cursor: pointer; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.3s; }
+        .btn-blue { background: linear-gradient(90deg, #00d2ff, #3a7bd5); }
+        .btn-orange { background: linear-gradient(90deg, #f2994a, #f2c94c); color: #000; }
+        .btn-green { background: linear-gradient(90deg, #00b09b, #96c93d); }
+
+        .console-logs { background: #000; border-radius: 15px; padding: 15px; height: 140px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 11px; color: #00ff00; border: 1px solid #333; margin-top: 10px; }
+        
+        .loader { display: none; width: 18px; height: 18px; border: 3px solid #fff; border-top: 3px solid #ff4500; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div id="auth-ui" class="auth-card">
+        <div class="logo-box"><img src="https://i.postimg.cc/7hbPTDtv/From-Klick-Pin-CF-Luffy-4k-Wallpaper-One-Piece-One-piece-wallpaper-iphone-One-piece-One-piece-luffy.jpg"></div>
+        <h3 style="color:#ff4500; margin-bottom:20px; letter-spacing: 1px;">SAFI BOT SYSTEM</h3>
+        <div class="tabs">
+            <div id="tabL" class="tab active" onclick="setAuthMode('login')">LOGIN</div>
+            <div id="tabS" class="tab" onclick="setAuthMode('signup')">SIGN UP</div>
+        </div>
+        <input type="text" id="userInput" placeholder="Username">
+        <input type="password" id="passInput" placeholder="Password">
+        <button class="btn-auth" onclick="handleAuth()">➜ START SESSION</button>
+        <p style="font-size: 10px; color: #444; margin-top: 20px;">POWERED BY SAFI | PRIVATE ENGINE</p>
+    </div>
+
+    <div id="dashboard">
+        <div class="success-msg">✅ Session Started: Connection Secure.</div>
+        
+        <div class="user-profile">
+            <div class="avatar-circle" id="userInitial">S</div>
+            <div>
+                <p id="userNameLabel" style="font-weight:bold; font-size: 18px;">SAFI</p>
+                <p style="color:#888; font-size:11px;">System Administrator</p>
+            </div>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-box"><p style="color:#888; font-size:10px;">BOT STATUS</p><p id="botStatusText" style="color:#ff4500; font-weight: bold;">OFFLINE ⏸️</p></div>
+            <div class="status-box"><p style="color:#888; font-size:10px;">SERVER</p><p style="font-weight: bold;">NODE_SAFI_01</p></div>
+        </div>
+
+        <input type="text" id="targetUID" placeholder="Enter Target Player UID" style="background:#121217; border-color: #333;">
+
+        <button class="action-btn btn-blue" onclick="logAction('SYS', 'Accessing Virtual Control Panel...')">🤖 Bot Control Panel</button>
+        <button class="action-btn btn-blue" onclick="saveCredentials()">🔑 Set Credentials</button>
+        <button class="action-btn btn-orange" onclick="logAction('UPD', 'Updating Instance Memory...')">🔄 Update My Instance</button>
+        <button class="action-btn btn-green" id="runBtn" onclick="runBotEngine()">▶️ Start Bot <div class="loader" id="loaderRing"></div></button>
+
+        <div id="logs" class="console-logs">>> Ready to Inject Virtual Files...</div>
+        
+        <button class="action-btn" style="background:#222; margin-top:15px;" onclick="location.reload()">🔄 Logout System</button>
+    </div>
+
+    <script>
+        let currentMode = 'login';
+        let dbUser = "", dbPass = "";
+
+        function setAuthMode(m) { 
+            currentMode = m; 
+            document.getElementById('tabL').classList.toggle('active', m==='login'); 
+            document.getElementById('tabS').classList.toggle('active', m==='signup'); 
+        }
+
+        function handleAuth() {
+            let u = document.getElementById('userInput').value;
+            let p = document.getElementById('passInput').value;
+            if(!u || !p) return alert("Please fill all fields!");
+
+            if(currentMode === 'signup') {
+                dbUser = u; dbPass = p;
+                alert("Account created successfully! Please login now.");
+                setAuthMode('login');
+            } else {
+                // Allows "SAFI/LOFFY" as master bypass or the signed up account
+                if((u === dbUser && p === dbPass) || (u.toUpperCase() === "SAFI" && p.toUpperCase() === "LOFFY")) {
+                    document.getElementById('auth-ui').style.display='none';
+                    document.getElementById('dashboard').style.display='flex';
+                    document.getElementById('userNameLabel').innerText = u.toUpperCase();
+                    document.getElementById('userInitial').innerText = u[0].toUpperCase();
+                } else {
+                    alert("Access Denied: Invalid Credentials.");
+                }
+            }
+        }
+
+        function logAction(tag, msg) {
+            let logArea = document.getElementById('logs');
+            logArea.innerHTML += `<br>>> [${tag}] ${msg}`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function saveCredentials() {
+            let uid = document.getElementById('targetUID').value;
+            if(!uid) return alert("Enter Target UID First!");
+            logAction('CRED', `UID ${uid} cached in virtual memory.`);
+        }
+
+        function runBotEngine() {
+            let uid = document.getElementById('targetUID').value;
+            if(!uid) return alert("Please enter Target UID!");
+
+            let btn = document.getElementById('runBtn');
+            let ldr = document.getElementById('loaderRing');
+            let statusText = document.getElementById('botStatusText');
+            
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.7';
+            ldr.style.display = 'inline-block';
+
+            logAction('SYS', 'Establishing Secure Tunnel...');
+            
+            setTimeout(() => {
+                logAction('INJECT', 'Bypassing Anticheat: 60%');
+                setTimeout(() => {
+                    logAction('INJECT', 'Injecting TCP Packets: 100%');
+                    logAction('SUCCESS', `Bot is now ONLINE for UID: ${uid}`);
+                    statusText.innerText = "ONLINE ⚡";
+                    statusText.style.color = "#00ff00";
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                    ldr.style.display = 'none';
+                    alert("Success! Bot is now active on " + uid);
+                }, 1500);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
