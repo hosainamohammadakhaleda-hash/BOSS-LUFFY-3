@@ -3,166 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAFI | PRIVATE BOT SYSTEM</title>
+    <title>PANEL SAFI - Cyber Control v5.0 Ultimate</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <style>
-        /* CSS - Anixh Premium Dark & Orange Theme */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #08080a; color: white; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
-
-        .bg-glow { position: fixed; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255, 69, 0, 0.1), transparent); filter: blur(100px); z-index: -1; top: 10%; left: 10%; }
-
-        /* Auth Card */
-        .auth-card { background: #121217; padding: 35px; border-radius: 25px; border: 1px solid #222; width: 360px; text-align: center; margin-top: 50px; height: fit-content; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
-        .logo-box { width: 110px; height: 110px; margin: 0 auto 15px; border-radius: 50%; border: 3px solid #ff4500; padding: 5px; box-shadow: 0 0 15px rgba(255, 69, 0, 0.4); }
-        .logo-box img { width: 100%; height: 100%; border-radius: 50%; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #05050a; color: #fff; font-family: monospace;
+            padding: 20px; text-align: center; min-height: 100vh; position: relative;
+        }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0, 255, 240, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 255, 240, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px; z-index: -1;
+        }
+        h2 {
+            color: #00fff0; text-shadow: 0 0 10px #00fff0; margin-bottom: 5px;
+            text-transform: uppercase; font-size: 24px; letter-spacing: 2px;
+        }
+        h3 { color: #00fff0; font-size: 16px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;}
+        .subtitle { color: #00ff66; font-size: 12px; margin-bottom: 25px; }
+        .grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; max-width: 1000px; margin: 0 auto; }
+        .card {
+            background: rgba(10, 10, 20, 0.85); border: 2px solid #00fff0;
+            padding: 20px; border-radius: 4px; flex: 1; min-width: 300px; box-shadow: 0 0 15px rgba(0, 255, 240, 0.2);
+        }
+        input, textarea {
+            width: 100%; padding: 12px; margin: 10px 0; background: #020205;
+            border: 1px solid #00fff0; color: #00ff00; outline: none; font-family: monospace;
+        }
+        .file-input { border: 1px dashed #00fff0; padding: 15px; cursor: pointer; background: #020205; color: #00ff00; }
+        button {
+            width: 100%; padding: 12px; background: transparent; border: 2px solid #00fff0;
+            color: #00fff0; font-weight: bold; cursor: pointer; margin-top: 8px; text-transform: uppercase;
+            transition: 0.2s;
+        }
+        button:hover { background: #00fff0; color: #000; box-shadow: 0 0 15px #00fff0; }
         
-        .tabs { display: flex; background: #0a0a0c; border-radius: 12px; margin-bottom: 25px; padding: 5px; }
-        .tab { flex: 1; padding: 12px; cursor: pointer; border-radius: 10px; color: #888; font-weight: bold; font-size: 13px; transition: 0.3s; }
-        .tab.active { background: linear-gradient(45deg, #ff4500, #ff7b00); color: white; }
-
-        input { width: 100%; padding: 15px; margin-bottom: 15px; background: #0a0a0c; border: 1px solid #222; border-radius: 12px; color: #ff4500; text-align: center; outline: none; transition: 0.3s; }
-        input:focus { border-color: #ff4500; }
-        .btn-auth { width: 100%; padding: 16px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; background: linear-gradient(45deg, #ff4500, #ff7b00); text-transform: uppercase; }
-
-        /* Dashboard UI */
-        #dashboard { display: none; width: 100%; max-width: 450px; padding: 20px; flex-direction: column; animation: fadeIn 0.5s; }
-        .success-msg { background: #0a1a0a; border: 1px solid #00ff00; color: #00ff00; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; font-weight: bold; border-left: 5px solid #00ff00; }
+        .btn-action-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+        .btn-block { border-color: #ffaa00; color: #ffaa00; margin: 0; }
+        .btn-block:hover { background: #ffaa00; color: #000; }
+        .btn-unblock { border-color: #00ff66; color: #00ff66; margin: 0; }
+        .btn-unblock:hover { background: #00ff66; color: #000; }
+        .btn-reset { border-color: #00fff0; color: #00fff0; margin: 0; }
+        .btn-reset:hover { background: #00fff0; color: #000; }
+        .btn-delete { border-color: #ff0055; color: #ff0055; margin: 0; }
+        .btn-delete:hover { background: #ff0055; color: #000; box-shadow: 0 0 10px #ff0055; }
         
-        .user-profile { background: #121217; padding: 20px; border-radius: 20px; display: flex; align-items: center; border: 1px solid #222; margin-bottom: 15px; }
-        .avatar-circle { width: 55px; height: 55px; background: linear-gradient(45deg, #a020f0, #00ffff); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; margin-right: 15px; }
-
-        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .status-box { background: #121217; padding: 15px; border-radius: 18px; border: 1px solid #222; text-align: center; }
+        .btn-global { border-color: #ff0055; color: #ff0055; margin-bottom: 12px; }
+        .btn-global:hover { background: #ff0055; color: #000; box-shadow: 0 0 15px #ff0055; }
         
-        .action-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; color: white; font-weight: bold; margin-bottom: 12px; cursor: pointer; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.3s; }
-        .btn-blue { background: linear-gradient(90deg, #00d2ff, #3a7bd5); }
-        .btn-orange { background: linear-gradient(90deg, #f2994a, #f2c94c); color: #000; }
-        .btn-green { background: linear-gradient(90deg, #00b09b, #96c93d); }
-
-        .console-logs { background: #000; border-radius: 15px; padding: 15px; height: 140px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 11px; color: #00ff00; border: 1px solid #333; margin-top: 10px; }
+        .user-box { background: rgba(0, 0, 0, 0.7); padding: 15px; margin: 12px 0; text-align: left; border-left: 6px solid #00fff0; }
+        .status-online { color: #00ff66; font-weight: bold; float: right; }
+        .status-offline { color: #ff0055; font-weight: bold; float: right; }
+        .device-info { color: #ffff00; font-size: 11px; margin-top: 4px; display: block; }
         
-        .loader { display: none; width: 18px; height: 18px; border: 3px solid #fff; border-top: 3px solid #ff4500; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        #progressContainer { width: 100%; background: #222; height: 12px; margin-top: 15px; display: none; border-radius: 4px; overflow: hidden; border: 1px solid #00fff0; }
+        #progressBar { width: 0%; height: 100%; background: #00ff66; transition: 0.3s; }
+        #statusMsg { font-size: 13px; color: #00ff66; margin-top: 8px; font-weight: bold; }
+
+        #loginOverlay {
+            position: fixed; top:0; left:0; width:100%; height:100%; background: #020205;
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+        }
+        .counter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .counter-badge { border: 1px dashed #00fff0; padding: 10px 20px; font-weight: bold; background: rgba(0, 255, 240, 0.02); }
+        .counter-badge.online-badge { border-color: #00ff66; background: rgba(0, 255, 102, 0.02); }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-
-    <div id="auth-ui" class="auth-card">
-        <div class="logo-box"><img src="https://i.postimg.cc/7hbPTDtv/From-Klick-Pin-CF-Luffy-4k-Wallpaper-One-Piece-One-piece-wallpaper-iphone-One-piece-One-piece-luffy.jpg"></div>
-        <h3 style="color:#ff4500; margin-bottom:20px; letter-spacing: 1px;">SAFI BOT SYSTEM</h3>
-        <div class="tabs">
-            <div id="tabL" class="tab active" onclick="setAuthMode('login')">LOGIN</div>
-            <div id="tabS" class="tab" onclick="setAuthMode('signup')">SIGN UP</div>
+    <div id="loginOverlay">
+        <div class="card" style="max-width: 360px; border-color: #ff0055;">
+            <h2 style="color: #ff0055;">CORE_ACCESS_LOCK</h2>
+            <p style="font-size: 10px; color: #666; margin-bottom: 15px;">IDENTIFY YOURSELF, SAFI</p>
+            <input id="adminUser" type="text" placeholder="[ SECURITY ID ]">
+            <input id="adminPass" type="password" placeholder="[ ACCESS CODE ]">
+            <button style="border-color: #ff0055; color: #ff0055;" onclick="checkAdminLogin()">LOGIN</button>
         </div>
-        <input type="text" id="userInput" placeholder="Username">
-        <input type="password" id="passInput" placeholder="Password">
-        <button class="btn-auth" onclick="handleAuth()">➜ START SESSION</button>
-        <p style="font-size: 10px; color: #444; margin-top: 20px;">POWERED BY SAFI | PRIVATE ENGINE</p>
     </div>
 
-    <div id="dashboard">
-        <div class="success-msg">✅ Session Started: Connection Secure.</div>
-        
-        <div class="user-profile">
-            <div class="avatar-circle" id="userInitial">S</div>
-            <div>
-                <p id="userNameLabel" style="font-weight:bold; font-size: 18px;">SAFI</p>
-                <p style="color:#888; font-size:11px;">System Administrator</p>
+    <div id="mainDashboard" style="display: none;">
+        <h2>⚡ PANEL SAFI v5.0 Ultimate ⚡</h2>
+        <div class="subtitle">> CONTROL_ROOM // MULTI-CLOUD SERVER MAIN INTERFACE</div>
+
+        <div class="counter-container">
+            <span class="counter-badge">📊 TOTAL REGISTERED NODES: <span id="totalUserCount" style="color: #00fff0;">0</span></span>
+            <span class="counter-badge online-badge">🟢 LIVE ONLINE NODES: <span id="onlineUserCount" style="color: #00ff66;">0</span></span>
+        </div>
+
+        <div class="card" style="max-width: 650px; margin: 0 auto 25px auto; border-color: #00fff0;">
+            <h3 style="color: #00fff0;">📁 DIRECT CLOUD FILE & IMAGE UPLOADER</h3>
+            <p style="font-size: 11px; color: #aa00ff; margin-bottom: 10px;">লিঙ্ক ছাড়া সরাসরি তোমার ফোন থেকে ফাইল এবং ব্যানার ছবি অ্যাপে আপলোড করো</p>
+            
+            <input id="display_name" type="text" placeholder="> Enter Display Name (e.g. Free Fire VVIP Injector)">
+            
+            <label style="color: #00fff0; font-size: 12px; display: block; text-align: left; margin: 5px 0;">Select File (.txt, .glp, .apk, etc.):</label>
+            <input type="file" id="mainFile" class="file-input" style="width:100%;">
+            
+            <label style="color: #00fff0; font-size: 12px; display: block; text-align: left; margin: 5px 0;">Select App Banner/Image:</label>
+            <input type="file" id="mainImage" class="file-input" accept="image/*" style="width:100%;">
+
+            <div id="progressContainer">
+                <div id="progressBar"></div>
+            </div>
+            <div id="statusMsg"></div>
+
+            <button style="border-color: #00ff66; color: #00ff66;" onclick="startAdvancedUpload()">🚀 START CLOUD UPLOAD & SYNC</button>
+        </div>
+
+        <div class="card" style="max-width: 500px; margin: 0 auto 25px auto; border-color: #ffaa00;">
+            <h3>🛰️ Global Broadcast Commands</h3>
+            <div style="display: flex; gap: 10px; justify-content: space-between;">
+                <button class="btn-global" style="width: 48%; margin: 0;" onclick="setGlobalStatus('maintenance')">⚠️ KILL_SWITCH: LOCK ALL APP FILES</button>
+                <button class="btn-global" style="border-color: #00ff66; color: #00ff66; width: 48%; margin: 0;" onclick="setGlobalStatus('active')">🔓 UNLOCK FILES</button>
             </div>
         </div>
 
-        <div class="status-grid">
-            <div class="status-box"><p style="color:#888; font-size:10px;">BOT STATUS</p><p id="botStatusText" style="color:#ff4500; font-weight: bold;">OFFLINE ⏸️</p></div>
-            <div class="status-box"><p style="color:#888; font-size:10px;">SERVER</p><p style="font-weight: bold;">NODE_SAFI_01</p></div>
+        <div class="grid">
+            <div class="card">
+                <h3>🔑 Inject VIP Token & Limit</h3>
+                <input id="user" type="text" placeholder="> Set Username / Player UID">
+                <input id="pass" type="text" placeholder="> Set Password / PIN">
+                <input id="days" type="number" placeholder="> Access Validity (Days)">
+                <input id="uBalance" type="number" placeholder="> Initial Coins/Balance (Optional)">
+                <input id="uDevLimit" type="number" placeholder="> Device Limit (e.g. 1 or 2)" value="1">
+                <button onclick="createKey()">GENERATE SECURE KEY</button>
+            </div>
+
+            <div class="card" style="border-color: #ff0055;">
+                <h3>📡 Realtime Remote Config</h3>
+                <textarea id="notice" rows="2" placeholder="> Update Live Notice Dashboard"></textarea>
+                <input id="adminMsg" type="text" placeholder="> System Admin Message Popup">
+                <button style="border-color: #ff0055; color: #ff0055;" onclick="updateAppData()">OVERWRITE DATA</button>
+            </div>
+
+            <div class="card" style="border-color: #ffaa00; min-width: 100%;">
+                <h3>💰 UID Coin Controller</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <input id="searchUID" type="text" placeholder="> Target Player Username / UID" style="flex: 1; min-width: 200px; margin: 0;">
+                    <input id="targetBalance" type="number" placeholder="> Enter New Coin Amount" style="flex: 1; min-width: 150px; margin: 0;">
+                    <button style="border-color: #ffaa00; color: #ffaa00; width: auto; padding: 12px 30px; margin: 0;" onclick="updateCoinByUID()">UPDATE COINS</button>
+                </div>
+            </div>
+
+            <div class="card" style="min-width: 100%; border-color: #00ff66;">
+                <h3>🛰️ Active Nodes & Security Registry</h3>
+                <div id="userList" style="margin-top: 15px; color: #00ff66; text-align: left;">[0] Active links.</div>
+            </div>
         </div>
-
-        <input type="text" id="targetUID" placeholder="Enter Target Player UID" style="background:#121217; border-color: #333;">
-
-        <button class="action-btn btn-blue" onclick="logAction('SYS', 'Accessing Virtual Control Panel...')">🤖 Bot Control Panel</button>
-        <button class="action-btn btn-blue" onclick="saveCredentials()">🔑 Set Credentials</button>
-        <button class="action-btn btn-orange" onclick="logAction('UPD', 'Updating Instance Memory...')">🔄 Update My Instance</button>
-        <button class="action-btn btn-green" id="runBtn" onclick="runBotEngine()">▶️ Start Bot <div class="loader" id="loaderRing"></div></button>
-
-        <div id="logs" class="console-logs">>> Ready to Inject Virtual Files...</div>
-        
-        <button class="action-btn" style="background:#222; margin-top:15px;" onclick="location.reload()">🔄 Logout System</button>
     </div>
 
     <script>
-        let currentMode = 'login';
-        let dbUser = "", dbPass = "";
+        // নতুন Firebase কনফিগারেশন বসানো হয়েছে
+        const firebaseConfig = { 
+            databaseURL: "https://gearluffypane-default-rtdb.firebaseio.com",
+            storageBucket: "gearluffypane.appspot.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const storage = firebase.storage();
 
-        function setAuthMode(m) { 
-            currentMode = m; 
-            document.getElementById('tabL').classList.toggle('active', m==='login'); 
-            document.getElementById('tabS').classList.toggle('active', m==='signup'); 
+        function checkAdminLogin() {
+            var user = document.getElementById('adminUser').value.trim();
+            var pass = document.getElementById('adminPass').value.trim();
+            if(user === "ASMA" && pass === "SAFI") {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainDashboard').style.display = 'block';
+                loadRealtimeData(); 
+            } else { alert("ACCESS DENIED!"); }
         }
 
-        function handleAuth() {
-            let u = document.getElementById('userInput').value;
-            let p = document.getElementById('passInput').value;
-            if(!u || !p) return alert("Please fill all fields!");
-
-            if(currentMode === 'signup') {
-                dbUser = u; dbPass = p;
-                alert("Account created successfully! Please login now.");
-                setAuthMode('login');
-            } else {
-                // Allows "SAFI/LOFFY" as master bypass or the signed up account
-                if((u === dbUser && p === dbPass) || (u.toUpperCase() === "SAFI" && p.toUpperCase() === "LOFFY")) {
-                    document.getElementById('auth-ui').style.display='none';
-                    document.getElementById('dashboard').style.display='flex';
-                    document.getElementById('userNameLabel').innerText = u.toUpperCase();
-                    document.getElementById('userInitial').innerText = u[0].toUpperCase();
-                } else {
-                    alert("Access Denied: Invalid Credentials.");
+        function loadRealtimeData() {
+            db.ref('users').on('value', (snapshot) => {
+                var userListDiv = document.getElementById('userList');
+                var totalUserSpan = document.getElementById('totalUserCount');
+                var onlineUserSpan = document.getElementById('onlineUserCount');
+                
+                userListDiv.innerHTML = "";
+                if(!snapshot.exists()) { 
+                    totalUserSpan.innerText = "0"; onlineUserSpan.innerText = "0"; 
+                    userListDiv.innerHTML = "কোনো ইউজার রেজিস্টার্ড নেই।"; return; 
                 }
+                
+                var totalUsers = snapshot.numChildren();
+                var onlineUsers = 0;
+                totalUserSpan.innerText = totalUsers;
+
+                snapshot.forEach((childSnapshot) => {
+                    var username = childSnapshot.key;
+                    var userData = childSnapshot.val();
+                    var expDate = new Date(userData.expires).toLocaleDateString();
+                    if(userData.isOnline === true) { onlineUsers++; }
+
+                    var onlineStatus = userData.isOnline ? '<span class="status-online">[ ONLINE ]</span>' : '<span class="status-offline">[ OFFLINE ]</span>';
+                    var currentStatus = userData.status === "blocked" ? "<span style='color:#ff0055;'>[ BLOCKED ]</span>" : "<span style='color:#00ff66;'>[ RUNNING ]</span>";
+                    
+                    var currentBalance = userData.balance !== undefined ? userData.balance : 0;
+                    var deviceLimit = userData.device_limit !== undefined ? userData.device_limit : 1;
+                    var currentConnectedDevices = userData.connected_devices ? Object.keys(userData.connected_devices).length : 0;
+                    
+                    var userBox = document.createElement('div');
+                    userBox.className = "user-box";
+                    userBox.innerHTML = `
+                        <strong>> NODE:</strong> ${username} ${currentStatus} ${onlineStatus}<br>
+                        <strong>> PASS:</strong> ${userData.password} | <strong>> EXP:</strong> ${expDate}<br>
+                        <span class="device-info" style="color: #ffff00;">💰 <strong>COINS:</strong> ${currentBalance} Coins</span>
+                        <span class="device-info">📱 <strong>DEVICE LIMIT:</strong> ${currentConnectedDevices} / ${deviceLimit} Used</span>
+                        <div class="btn-action-container">
+                            <button class="btn-block" onclick="changeUserStatus('${username}', 'blocked')">🚫 BLOCK</button>
+                            <button class="btn-unblock" onclick="changeUserStatus('${username}', 'active')">🔓 ALLOW</button>
+                            <button class="btn-reset" onclick="resetDevice('${username}')">🔄 RESET DEV</button>
+                            <button class="btn-delete" onclick="deleteUserNode('${username}')">🗑️ DELETE NODE</button>
+                        </div>
+                    `;
+                    userListDiv.appendChild(userBox);
+                });
+                onlineUserSpan.innerText = onlineUsers;
+            });
+
+            db.ref('app_files').once('value', (snap) => {
+                if(snap.exists()) {
+                    if(snap.val().file_name) document.getElementById('display_name').value = snap.val().file_name;
+                }
+            });
+
+            db.ref('app_settings').once('value', (snap) => {
+                if(snap.exists()) {
+                    if(snap.val().app_notice) document.getElementById('notice').value = snap.val().app_notice;
+                    if(snap.val().admin_message) document.getElementById('adminMsg').value = snap.val().admin_message;
+                }
+            });
+        }
+
+        async function startAdvancedUpload() {
+            const file = document.getElementById('mainFile').files[0];
+            const image = document.getElementById('mainImage').files[0];
+            const name = document.getElementById('display_name').value.trim();
+            const status = document.getElementById('statusMsg');
+            const progress = document.getElementById('progressBar');
+            const container = document.getElementById('progressContainer');
+
+            if(!file || !image || !name) return alert("দয়া করে নাম, ফাইল এবং ছবি সবগুলো সিলেক্ট করো সাফি!");
+
+            container.style.display = 'block';
+            status.innerText = "⏳ ফাইলটি ক্লাউড সার্ভারে আপলোড হচ্ছে...";
+            progress.style.width = "10%";
+
+            try {
+                const fileRef = storage.ref('uploads/' + Date.now() + "_" + file.name);
+                await fileRef.put(file);
+                const fileLink = await fileRef.getDownloadURL();
+                progress.style.width = "50%";
+                status.innerText = "⏳ ফাইল ডান! এবার ব্যানার ছবি আপলোড হচ্ছে...";
+
+                const imgRef = storage.ref('images/' + Date.now() + "_" + image.name);
+                await imgRef.put(image);
+                const imgLink = await imgRef.getDownloadURL();
+                progress.style.width = "90%";
+                status.innerText = "⏳ ডাটাবেজ সিঙ্ক করা হচ্ছে...";
+
+                await db.ref('app_files').set({
+                    file_name: name,
+                    file_url: fileLink,
+                    image_url: imgLink,
+                    upload_time: Date.now()
+                });
+
+                progress.style.width = "100%";
+                status.innerText = "🎯 সফলভাবে আপলোড ও অ্যাপ আপডেট সম্পন্ন!";
+                alert("সবকিছু লাইভ আপলোড ও আপডেট হয়ে গেছে সাফি!");
+            } catch (error) {
+                console.error(error);
+                status.innerText = "❌ ভুল হয়েছে: " + error.message;
             }
         }
 
-        function logAction(tag, msg) {
-            let logArea = document.getElementById('logs');
-            logArea.innerHTML += `<br>>> [${tag}] ${msg}`;
-            logArea.scrollTop = logArea.scrollHeight;
+        function createKey() {
+            var u = document.getElementById('user').value.trim();
+            var p = document.getElementById('pass').value.trim();
+            var d = document.getElementById('days').value;
+            var b = document.getElementById('uBalance').value;
+            var limit = document.getElementById('uDevLimit').value;
+
+            if(!u || !p || !d || !limit) return alert("সব ডাটা ইনপুট করো!");
+            var expire = new Date(); expire.setDate(expire.getDate() + parseInt(d));
+            var initialBalance = b ? parseInt(b) : 0;
+
+            db.ref('users/' + u).set({ 
+                password: p, expires: expire.getTime(), status: "active", isOnline: false, 
+                balance: initialBalance, device_limit: parseInt(limit), connected_devices: {} 
+            }).then(() => {
+                alert("টোকেন সফলভাবে জেনারেট হয়েছে!"); 
+                document.getElementById('user').value = ''; document.getElementById('pass').value = ''; document.getElementById('days').value = '';
+                document.getElementById('uBalance').value = ''; document.getElementById('uDevLimit').value = '1';
+            });
         }
 
-        function saveCredentials() {
-            let uid = document.getElementById('targetUID').value;
-            if(!uid) return alert("Enter Target UID First!");
-            logAction('CRED', `UID ${uid} cached in virtual memory.`);
+        function resetDevice(uid) {
+            db.ref('users/' + uid + '/connected_devices').remove().then(() => { alert("🎯 ডিভাইস হিস্ট্রি রিসেট হয়েছে!"); });
         }
 
-        function runBotEngine() {
-            let uid = document.getElementById('targetUID').value;
-            if(!uid) return alert("Please enter Target UID!");
-
-            let btn = document.getElementById('runBtn');
-            let ldr = document.getElementById('loaderRing');
-            let statusText = document.getElementById('botStatusText');
-            
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.7';
-            ldr.style.display = 'inline-block';
-
-            logAction('SYS', 'Establishing Secure Tunnel...');
-            
-            setTimeout(() => {
-                logAction('INJECT', 'Bypassing Anticheat: 60%');
-                setTimeout(() => {
-                    logAction('INJECT', 'Injecting TCP Packets: 100%');
-                    logAction('SUCCESS', `Bot is now ONLINE for UID: ${uid}`);
-                    statusText.innerText = "ONLINE ⚡";
-                    statusText.style.color = "#00ff00";
-                    btn.style.opacity = '1';
-                    btn.style.pointerEvents = 'auto';
-                    ldr.style.display = 'none';
-                    alert("Success! Bot is now active on " + uid);
-                }, 1500);
-            }, 1000);
+        function deleteUserNode(uid) {
+            if(confirm("তুমি কি নিশ্চিত যে ইউজার " + uid + " কে ডাটাবেজ থেকে চিরতরে ডিলিট করতে চাও?")) {
+                db.ref('users/' + uid).remove().then(() => { alert("🎯 ইউজার সফলভাবে ডাটাবেজ থেকে ডিলিট হয়েছে!"); });
+            }
         }
+
+        function updateCoinByUID() {
+            var targetUID = document.getElementById('searchUID').value.trim();
+            var newCoin = document.getElementById('targetBalance').value.trim();
+            if(!targetUID || !newCoin) return alert("UID এবং কয়েনের পরিমাণ লিখুন!");
+
+            db.ref('users/' + targetUID).once('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    db.ref('users/' + targetUID).update({ balance: parseInt(newCoin) }).then(() => {
+                        alert("🎯 ব্যালেন্স আপডেট হয়েছে!");
+                        document.getElementById('searchUID').value = ""; document.getElementById('targetBalance').value = "";
+                    });
+                } else { alert("❌ এই UID-র কোনো প্লেয়ার নেই!"); }
+            });
+        }
+
+        function setGlobalStatus(status) { db.ref('app_settings/server_status').set(status).then(() => { alert("স্ট্যাটাস সিঙ্ক হয়েছে!"); }); }
+        function updateAppData() {
+            var notice = document.getElementById('notice').value; var msg = document.getElementById('adminMsg').value;
+            var data = {}; if(notice) data.app_notice = notice; if(msg) data.admin_message = msg;
+            db.ref('app_settings').update(data).then(() => { alert("ডাটা ওভাররাইট সম্পন্ন!"); });
+        }
+        function changeUserStatus(username, status) { db.ref('users/' + username).update({ status: status }); }
     </script>
 </body>
 </html>
